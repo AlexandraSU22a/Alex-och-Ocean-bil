@@ -1,0 +1,129 @@
+// Arduino Line Follower Robot Code
+
+#define enA 12 // Enable1 L293 Pin enA
+#define in1 1 // Motor1 L293 Pin in1
+#define in2 27 // Motor1 L293 Pin in1
+#define in3 16 // Motor2 L293 Pin in1
+#define in4 25 // Motor2 L293 Pin in1
+#define enB 26 // Enable2 L293 Pin enB
+
+const int pinOUT1 = 13;
+const int pinOUT2 = 15;
+const int pinOUT3 = 23;
+const int pinOUT4 = 19;
+const int pinOUT5 = 18;
+int IRvalue1 = 0;
+int IRvalue2 = 0;
+int IRvalue3 = 0;
+int IRvalue4 = 0;
+int IRvalue5 = 0;
+
+int maxSpeed = 100; // Set your desired maximum speed (0 to 255)
+
+void setup()
+{
+  Serial.begin(9600); // Set the baud rate to 9600
+  pinMode(pinOUT1, INPUT);
+  pinMode(pinOUT2, INPUT);
+  pinMode(pinOUT3, INPUT);
+  pinMode(pinOUT4, INPUT);
+  pinMode(pinOUT5, INPUT);
+
+  pinMode(enA, OUTPUT);
+  pinMode(in1, OUTPUT);
+  pinMode(in2, OUTPUT);
+  pinMode(in3, OUTPUT);
+  pinMode(in4, OUTPUT);
+  pinMode(enB, OUTPUT);
+
+  digitalWrite(enA, HIGH);
+  digitalWrite(enB, HIGH);
+}
+
+void loop()
+{
+  Serial.print("Digital Reading=");
+  Serial.print(IRvalue1);
+  Serial.print(IRvalue2);
+  Serial.print(IRvalue3);
+  Serial.print(IRvalue4);
+  Serial.println(IRvalue5);
+  delay(1000);
+
+  IRvalue1 = digitalRead(pinOUT1);
+  IRvalue2 = digitalRead(pinOUT2);
+  IRvalue3 = digitalRead(pinOUT3);
+  IRvalue4 = digitalRead(pinOUT4);
+  IRvalue5 = digitalRead(pinOUT5);
+
+  /*if ((digitalRead(IRvalue2) == 0) && (digitalRead(IRvalue3) == 1) && (digitalRead(IRvalue4) == 0))
+  {
+    forward();
+  }*/
+
+  if (IRvalue2 == 1 && IRvalue3 == 1 && IRvalue4 == 1)
+  {
+    forward();
+  }
+  else
+  {
+    Stop();
+  }
+  
+  /*if ((digitalRead(IRvalue2) == 0) && (digitalRead(IRvalue3) == 0) && (digitalRead(IRvalue4) == 0))
+  {
+    forward();
+  }
+  
+  if ( (digitalRead(IRvalue2) == 0) && (digitalRead(IRvalue3) == 1) && (digitalRead(IRvalue4) == 1))
+  {
+    turnRight();
+  }
+  
+  if ((digitalRead(IRvalue1) == 1) && (digitalRead(IRvalue2) == 0) && (digitalRead(IRvalue3) == 0) || (digitalRead(IRvalue1) == 1) && (digitalRead(IRvalue2) == 0) && (digitalRead(IRvalue3) == 1))
+  {
+    turnLeft();
+  }
+  
+  if ((digitalRead(IRvalue2) == 0) && (digitalRead(IRvalue3) == 0) && (digitalRead(IRvalue4) == 0))
+  {
+    forward();
+  }*/
+}
+
+void forward()
+{
+  
+  digitalWrite(in1, HIGH); // Right Motor forward Pin
+  digitalWrite(in2, LOW);  // Right Motor backward Pin
+  digitalWrite(in3, LOW);  // Left Motor backward Pin
+  digitalWrite(in4, HIGH); // Left Motor forward Pin
+}
+
+void turnRight()
+{
+  digitalWrite(in1, LOW);        // Right Motor forward Pin
+  digitalWrite(in2, HIGH);       // Right Motor backward Pin
+  digitalWrite(in3, LOW);        // Left Motor backward Pin
+  digitalWrite(in4, HIGH);       // Left Motor forward Pin
+}
+
+void turnLeft()
+{
+  digitalWrite(in1, HIGH);       // Right Motor forward Pin
+  digitalWrite(in2, LOW);        // Right Motor backward Pin
+  digitalWrite(in3, HIGH);       // Left Motor backward Pin
+  digitalWrite(in4, LOW);        // Left Motor forward Pin
+}
+
+void Stop()
+{ //stop
+
+  digitalWrite(in1, LOW); //Right Motor forword Pin
+
+  digitalWrite(in2, LOW); //Right Motor backword Pin
+
+  digitalWrite(in3, LOW); //Left Motor backword Pin
+
+  digitalWrite(in4, LOW); //Left Motor forword Pin
+}
