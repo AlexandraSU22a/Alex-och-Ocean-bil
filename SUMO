@@ -1,0 +1,93 @@
+#include <Ultrasonic.h>
+
+Ultrasonic ultrasonic(25, 26);
+
+const int IN1 = 14;
+const int IN2 = 27;
+const int IN3 = 16;
+const int IN4 = 17;
+const int enablePin1 = 36; // Example enable pin for motor 1
+const int enablePin2 = 34; // Example enable pin for motor 2
+#define IR_sensor_front A0  // Front IR sensor
+int distance;
+
+const int ledPins[] = {12, 15, 13, 23, 19}; // Pins connected to LEDs
+const int numLEDs = 5; // Number of LEDs
+
+void setup() {
+  Serial.begin(9600);
+  pinMode(IR_sensor_front, INPUT);
+  for (int i = 0; i < numLEDs; i++) {
+    pinMode(ledPins[i], OUTPUT);
+  }
+  pinMode(enablePin1, OUTPUT); // Set enable pins as output
+  pinMode(enablePin2, OUTPUT);
+  delay(5000); // Initial delay
+}
+
+void loop() {
+  int IR_front = analogRead(IR_sensor_front);
+  distance = ultrasonic.read();
+  
+  // Map the IR sensor value to the number of LEDs to be turned on
+  int numLedsToTurnOn = map(IR_front, 0, 1023, 0, numLEDs);
+
+  // Turn on LEDs based on the IR sensor reading
+  for (int i = 0; i < numLedsToTurnOn; i++) {
+    digitalWrite(ledPins[i], HIGH);
+  }
+
+  // Turn off the remaining LEDs
+  for (int i = numLedsToTurnOn; i < numLEDs; i++) {
+    digitalWrite(ledPins[i], LOW);
+  }
+
+  if (distance < 20) {
+    Stop();
+    while (distance < 20) {
+      FORWARD(255);
+      distance = ultrasonic.read();
+      IR_front = analogRead(IR_sensor_front);
+      if (IR_front > 650) {
+        break;
+      }
+      delay(10);
+    }
+  } else {
+    ROTATE(200); // Rotate if no obstacle detected
+  }
+
+  // Debugging
+  /*
+  Serial.print(distance);
+  Serial.print(" cm | IR front: ");
+  Serial.println(IR_front);
+  */
+}
+
+void FORWARD(int Speed) {
+  analogWrite(IN1, Speed);
+  analogWrite(IN2, 0);
+  analogWrite(IN3, 0);
+  analogWrite(IN4, Speed);
+  analogWrite(enablePin1, Speed); // Set motor speeds using enable pins
+  analogWrite(enablePin2, Speed);
+}
+
+void ROTATE(int Speed) {
+  analogWrite(IN1, Speed);
+  analogWrite(IN2, 0);
+  analogWrite(IN3, Speed);
+  analogWrite(IN4, 0);
+  analogWrite(enablePin1, Speed); // Set motor speeds using enable pins
+  analogWrite(enablePin2, Speed);
+}
+
+void Stop() {
+  analogWrite(IN1, 0);
+  analogWrite(IN2, 0);
+  analogWrite(IN3, 0);
+  analogWrite(IN4, 0);
+  analogWrite(enablePin1, 0); // Stop motors by setting enable pins to 0
+  analogWrite(enablePin2, 0);
+}
